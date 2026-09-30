@@ -1,0 +1,400 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="九個步驟架好只屬於你自己的 LINE AI 機器人：ChatGPT、Gemini 或 Claude 任選，可看圖、拍海報加進 Google 行事曆。">
+<title>LINE AI 助理設定教學</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* 版面：單欄閱讀、字大；每一步是一張可以勾「完成」的卡片，桌機左側有步驟目錄 */
+:root {
+  --bg: #F6F7F4;
+  --surface: #FFFFFF;
+  --ink: #1B221D;
+  --muted: #56615A;
+  --line: #D9DFD9;
+  --accent: #1F5C3A;
+  --accent-soft: #E3EFE6;
+  --warn-bg: #FFF4E2;
+  --warn-ink: #7A4A08;
+  --warn-edge: #E1A33C;
+  --code-bg: #EEF1EC;
+  --done: #2E7D4F;
+  --font-body: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #121714; --surface: #1A211D; --ink: #E6ECE7; --muted: #A3B0A7; --line: #2E3832;
+    --accent: #7FC99A; --accent-soft: #1F3328; --warn-bg: #2E2413; --warn-ink: #F2CD8B; --warn-edge: #B9832A;
+    --code-bg: #232C26; --done: #7FC99A; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #121714; --surface: #1A211D; --ink: #E6ECE7; --muted: #A3B0A7; --line: #2E3832;
+  --accent: #7FC99A; --accent-soft: #1F3328; --warn-bg: #2E2413; --warn-ink: #F2CD8B; --warn-edge: #B9832A;
+  --code-bg: #232C26; --done: #7FC99A; color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 18px;
+  line-height: 1.8;
+  padding-inline: 20px;
+  padding-block: 0 64px;
+}
+.wrap { max-width: 1080px; margin: 0 auto; display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 48px; }
+@media (max-width: 860px) { .wrap { grid-template-columns: minmax(0, 1fr); gap: 0; } nav.toc { display: none; } }
+
+header.hero { max-width: 1080px; margin: 0 auto; padding-block: 48px 32px; }
+.eyebrow { font-size: 15px; font-weight: 700; letter-spacing: 0.08em; color: var(--accent); }
+h1 { font-size: clamp(32px, 6vw, 46px); line-height: 1.25; font-weight: 900; margin: 8px 0 16px; text-wrap: balance; }
+.lead { font-size: 20px; color: var(--muted); max-width: 40em; margin: 0; }
+.facts { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 24px; padding: 0; list-style: none; }
+.facts li { background: var(--accent-soft); color: var(--ink); border-radius: 999px; padding: 6px 16px; font-size: 16px; font-weight: 500; }
+
+nav.toc { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 24px); align-self: start; font-size: 16px; }
+nav.toc ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+nav.toc a { display: flex; gap: 10px; align-items: baseline; color: var(--muted); text-decoration: none; padding: 6px 10px; border-radius: 8px; }
+nav.toc a:hover { background: var(--accent-soft); color: var(--ink); }
+nav.toc a .n { font-family: var(--font-mono); font-size: 14px; color: var(--accent); min-width: 1.5em; }
+nav.toc a.done .n::after { content: " ✓"; color: var(--done); }
+nav.toc .progress { margin: 0 10px 12px; font-size: 14px; color: var(--muted); }
+
+main { display: grid; gap: 28px; min-width: 0; }
+section.card { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 28px 28px 24px; min-width: 0; }
+@media (max-width: 520px) { section.card { padding: 22px 18px 18px; } body { font-size: 17px; } }
+section.card.is-done { border-color: var(--done); }
+.step-head { display: flex; align-items: flex-start; gap: 16px; }
+.step-no { flex: none; width: 44px; height: 44px; border-radius: 50%; background: var(--accent); color: var(--surface); font-weight: 900; font-size: 20px; display: grid; place-items: center; font-family: var(--font-mono); }
+section.card.is-done .step-no { background: var(--done); }
+h2 { font-size: 26px; line-height: 1.35; margin: 2px 0 0; text-wrap: balance; }
+.why { color: var(--muted); margin: 4px 0 0; font-size: 17px; }
+.card ol, .card ul { padding-left: 1.4em; margin: 16px 0 0; display: grid; gap: 8px; }
+.card p { margin: 14px 0 0; }
+.card li::marker { color: var(--accent); font-weight: 700; }
+a { color: var(--accent); text-underline-offset: 3px; }
+b.ui { font-weight: 700; }
+kbd, code { font-family: var(--font-mono); font-size: 0.86em; background: var(--code-bg); border-radius: 6px; padding: 1px 7px; overflow-wrap: anywhere; }
+
+.note, .warn { border-radius: 10px; padding: 14px 18px; margin-top: 18px; font-size: 17px; }
+.note { background: var(--accent-soft); }
+.warn { background: var(--warn-bg); color: var(--warn-ink); border-left: 5px solid var(--warn-edge); }
+.warn b, .note b { font-weight: 700; }
+
+.table-scroll { overflow-x: auto; margin-top: 18px; }
+table { border-collapse: collapse; width: 100%; font-size: 17px; min-width: 520px; }
+th, td { text-align: left; padding: 12px 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-size: 15px; color: var(--muted); font-weight: 700; }
+tbody th { color: var(--ink); font-size: 16px; white-space: nowrap; }
+td.pick { background: var(--accent-soft); }
+
+.props { display: grid; gap: 10px; margin-top: 18px; }
+.prop { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 12px; align-items: center; border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; }
+.prop code { font-size: 16px; justify-self: start; }
+.prop .val { grid-column: 1 / -1; color: var(--muted); font-size: 16px; }
+button.copy { font: inherit; font-size: 15px; font-weight: 700; color: var(--accent); background: transparent; border: 1.5px solid var(--accent); border-radius: 8px; padding: 4px 12px; cursor: pointer; }
+button.copy:focus-visible, .done-toggle input:focus-visible + span { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+.done-toggle { display: inline-flex; align-items: center; gap: 10px; margin-top: 20px; font-weight: 700; color: var(--muted); cursor: pointer; font-size: 17px; }
+.done-toggle input { width: 22px; height: 22px; accent-color: var(--done); }
+section.card.is-done .done-toggle { color: var(--done); }
+
+.examples { display: grid; gap: 10px; margin-top: 16px; padding: 0; list-style: none; }
+.examples li { background: var(--code-bg); border-radius: 12px 12px 12px 4px; padding: 10px 16px; max-width: 30em; }
+
+footer { max-width: 1080px; margin: 40px auto 0; color: var(--muted); font-size: 16px; }
+@media (prefers-reduced-motion: no-preference) { section.card { transition: border-color .2s; } }
+</style>
+<style>html,body{margin:0}</style>
+</head>
+<body>
+
+
+<header class="hero">
+  <div class="eyebrow">簡易版・Google Apps Script</div>
+  <h1>在 LINE 裡用你自己的 AI</h1>
+  <p class="lead">做完之後，你會有一個只屬於你的 LINE 機器人。背後是你選的 AI：ChatGPT、Gemini 或 Claude。它能回答問題、看照片、把海報或會議通知加進 Google 行事曆，也能查你某天的行程。</p>
+  <ul class="facts">
+    <li>約 30–40 分鐘</li>
+    <li>LINE 與 Google 免費</li>
+    <li>只付 AI 用量</li>
+    <li>建議用電腦操作</li>
+  </ul>
+</header>
+
+<div class="wrap">
+  <nav class="toc" aria-label="步驟">
+    <p class="progress" id="progress">完成 0／9 步</p>
+    <ol>
+      <li><a href="#s1"><span class="n">1</span>LINE 官方帳號</a></li>
+      <li><a href="#s2"><span class="n">2</span>AI 金鑰</a></li>
+      <li><a href="#s3"><span class="n">3</span>貼上程式</a></li>
+      <li><a href="#s4"><span class="n">4</span>設定時區</a></li>
+      <li><a href="#s5"><span class="n">5</span>填入金鑰</a></li>
+      <li><a href="#s6"><span class="n">6</span>授權</a></li>
+      <li><a href="#s7"><span class="n">7</span>部署</a></li>
+      <li><a href="#s8"><span class="n">8</span>貼網址到 LINE</a></li>
+      <li><a href="#s9"><span class="n">9</span>綁定自己</a></li>
+      <li><a href="#help"><span class="n">?</span>出問題時</a></li>
+    </ol>
+  </nav>
+
+  <main>
+    <section class="card" id="s1" data-step="1">
+      <div class="step-head"><div class="step-no">1</div><div>
+        <h2>建立 LINE 官方帳號，拿到金鑰</h2>
+        <p class="why">這個帳號就是你的機器人，金鑰讓程式能替它回話。</p>
+      </div></div>
+      <ol>
+        <li>用電腦打開 <a href="https://developers.line.biz/console/" target="_blank" rel="noopener">LINE Developers</a>，用你的 LINE 帳號登入。</li>
+        <li>第一次進來會請你建立一個 <b class="ui">Provider</b>，名稱隨意，例如「我的助理」。</li>
+        <li>在 Provider 裡點 <b class="ui">Create a new channel</b>，選 <b class="ui">Messaging API</b>。</li>
+        <li>畫面會說現在不能直接在這裡建立。點綠色按鈕 <b class="ui">Create a LINE Official Account</b>。</li>
+        <li>照表單填寫。帳號名稱就是機器人的名字，不用申請認證。</li>
+        <li>完成後點 <b class="ui">前往 LINE Official Account Manager</b>，同意條款。</li>
+        <li>在 Official Account Manager 點 <b class="ui">設定 → Messaging API → 啟用 Messaging API</b>，選剛剛建立的 Provider，其他欄位留空，按確定。</li>
+        <li>回到 <a href="https://developers.line.biz/console/" target="_blank" rel="noopener">LINE Developers</a>，點進剛出現的頻道 → <b class="ui">Messaging API</b> 分頁 → 捲到最下面的 <b class="ui">Channel access token</b> → 按 <b class="ui">Issue</b>。</li>
+        <li>把這串很長的文字複製起來先放著，第 5 步要用。</li>
+      </ol>
+      <div class="warn"><b>這串 token 等於機器人的鑰匙。</b>不要貼給任何人，也不要貼到群組。</div>
+      <p>最後關掉 LINE 內建的自動回覆，不然它會跟 AI 搶著回話：Official Account Manager → <b class="ui">設定 → 回應設定</b>，把「加入好友的歡迎訊息」和「自動回應訊息」都關掉。</p>
+      <label class="done-toggle"><input type="checkbox" id="done-1"><span>這一步完成了</span></label>
+    </section>
+
+    <section class="card" id="s2" data-step="2">
+      <div class="step-head"><div class="step-no">2</div><div>
+        <h2>拿一把 AI 金鑰（三選一）</h2>
+        <p class="why">不知道選哪個，就先選 Gemini：免費就能開始用，不用綁卡。</p>
+      </div></div>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th></th><th>Gemini（Google）</th><th>ChatGPT（OpenAI）</th><th>Claude（Anthropic）</th></tr></thead>
+          <tbody>
+            <tr><th>費用</th><td class="pick">有免費額度，不用綁卡</td><td>要先儲值，最少 5 美元</td><td>要先儲值</td></tr>
+            <tr><th>申請網址</th><td class="pick"><a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">Google AI Studio</a></td><td><a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener">OpenAI Platform</a></td><td><a href="https://platform.claude.com/settings/keys" target="_blank" rel="noopener">Claude Console</a></td></tr>
+            <tr><th>第 5 步填</th><td class="pick"><code>gemini</code></td><td><code>openai</code></td><td><code>claude</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <ol>
+        <li>打開申請網址，登入。</li>
+        <li>建立一把 API key，複製起來先放著。</li>
+        <li>選 ChatGPT 或 Claude 的話，要先到網站的 <b class="ui">Billing</b>（帳單）頁儲值，金鑰才能用。</li>
+      </ol>
+      <p>一般聊天的用量很小，大多數人一個月花不到幾十元台幣。</p>
+      <div class="warn"><b>Gemini 免費方案的對話內容，Google 可能拿去改進他們的產品。</b>會傳工作文件、學生或客戶資料的話，改用付費方案，或選另外兩家。</div>
+      <div class="note">AI 金鑰也不要給任何人。被別人拿到，他就能花你的錢。</div>
+      <label class="done-toggle"><input type="checkbox" id="done-2"><span>這一步完成了</span></label>
+    </section>
+
+    <section class="card" id="s3" data-step="3">
+      <div class="step-head"><div class="step-no">3</div><div>
+        <h2>建立 Apps Script 專案，貼上程式</h2>
+        <p class="why">程式跑在你自己的 Google 帳號裡，機器人讀寫的就是這個帳號的行事曆。</p>
+      </div></div>
+      <ol>
+        <li>打開 <a href="https://script.google.com/home" target="_blank" rel="noopener">Google Apps Script</a>，用你的 Gmail 登入。</li>
+        <li>點左上角 <b class="ui">新專案</b>。</li>
+        <li>點左上角「未命名的專案」，改個名字，例如「LINE AI 助理」。</li>
+        <li>打開 <a href="https://raw.githubusercontent.com/goingli0324/line-ai-assistant/main/gas/Code.gs" target="_blank" rel="noopener">程式碼 Code.gs</a>，全選（<kbd>Ctrl</kbd>+<kbd>A</kbd> 或 <kbd>⌘</kbd>+<kbd>A</kbd>）後複製。</li>
+        <li>回到 Apps Script，把編輯器裡原本的幾行全部刪掉，貼上剛剛複製的程式。</li>
+        <li>按存檔（<kbd>Ctrl</kbd>+<kbd>S</kbd> 或 <kbd>⌘</kbd>+<kbd>S</kbd>）。</li>
+      </ol>
+      <label class="done-toggle"><input type="checkbox" id="done-3"><span>這一步完成了</span></label>
+    </section>
+
+    <section class="card" id="s4" data-step="4">
+      <div class="step-head"><div class="step-no">4</div><div>
+        <h2>設定時區</h2>
+        <p class="why">時區跟 Google 行事曆一樣，行程時間才不會差幾小時。</p>
+      </div></div>
+      <p>點左邊齒輪 <b class="ui">專案設定</b>，<b class="ui">時區</b> 選「(GMT+08:00) 台北」。不在台灣的話，選你所在的時區。</p>
+      <label class="done-toggle"><input type="checkbox" id="done-4"><span>這一步完成了</span></label>
+    </section>
+
+    <section class="card" id="s5" data-step="5">
+      <div class="step-head"><div class="step-no">5</div><div>
+        <h2>填入金鑰</h2>
+        <p class="why">金鑰存在 Apps Script 的「指令碼屬性」裡，不會出現在程式碼中。</p>
+      </div></div>
+      <p>還在 <b class="ui">專案設定</b> 頁，捲到最下面的 <b class="ui">指令碼屬性</b> → <b class="ui">編輯指令碼屬性</b>，新增這三筆，再按 <b class="ui">儲存指令碼屬性</b>。屬性名稱可以按「複製」直接貼上。</p>
+      <div class="props">
+        <div class="prop"><code>LINE_CHANNEL_ACCESS_TOKEN</code><button class="copy" type="button" data-copy="LINE_CHANNEL_ACCESS_TOKEN">複製</button><span class="val">值：第 1 步複製的 LINE token</span></div>
+        <div class="prop"><code>AI_PROVIDER</code><button class="copy" type="button" data-copy="AI_PROVIDER">複製</button><span class="val">值：<code>gemini</code>、<code>openai</code> 或 <code>claude</code>（小寫）</span></div>
+        <div class="prop"><code>AI_API_KEY</code><button class="copy" type="button" data-copy="AI_API_KEY">複製</button><span class="val">值：第 2 步複製的 AI 金鑰</span></div>
+      </div>
+      <div class="note">想指定模型的話，可以再加一筆 <code>AI_MODEL</code>。不加就用預設：Gemini 用 <code>gemini-3.8-flash</code>，ChatGPT 用 <code>gpt-6-luna</code>，Claude 用 <code>claude-sonnet-5-5</code>。</div>
+      <label class="done-toggle"><input type="checkbox" id="done-5"><span>這一步完成了</span></label>
+    </section>
+
+    <section class="card" id="s6" data-step="6">
+      <div class="step-head"><div class="step-no">6</div><div>
+        <h2>執行 setup，完成授權</h2>
+        <p class="why">讓程式可以讀寫你的行事曆、連到 AI。</p>
+      </div></div>
+      <ol>
+        <li>回到左邊 <b class="ui">編輯器</b>（<code>&lt; &gt;</code> 圖示）。</li>
+        <li>上方工具列的函式選單選 <code>setup</code>，按 <b class="ui">執行</b>。</li>
+        <li>跳出「需要授權」→ <b class="ui">審查權限</b> → 選你的 Gmail 帳號。</li>
+        <li>出現「Google 尚未驗證這個應用程式」時，點左下 <b class="ui">進階</b> → <b class="ui">前往「LINE AI 助理」（不安全）</b>。</li>
+        <li>按 <b class="ui">允許</b>。</li>
+        <li>下方「執行紀錄」出現 <b class="ui">✅ 設定齊全</b> 就成功了。出現 ❌ 的話，照它說的補上缺的設定，再執行一次。</li>
+      </ol>
+      <div class="note">「尚未驗證」是因為這支程式是你自己建的，Google 沒審查過，屬於正常現象。程式只會碰你自己的行事曆。</div>
+      <label class="done-toggle"><input type="checkbox" id="done-6"><span>這一步完成了</span></label>
+    </section>
+
+    <section class="card" id="s7" data-step="7">
+      <div class="step-head"><div class="step-no">7</div><div>
+        <h2>部署</h2>
+        <p class="why">部署後會拿到一個網址，LINE 的訊息就從這個網址送進來。</p>
+      </div></div>
+      <ol>
+        <li>右上角 <b class="ui">部署</b> → <b class="ui">新增部署作業</b>。</li>
+        <li>左邊齒輪選 <b class="ui">網頁應用程式</b>。</li>
+        <li>執行身分選 <b class="ui">我</b>，誰可以存取選 <b class="ui">所有人</b>。</li>
+        <li>按 <b class="ui">部署</b>。</li>
+      </ol>
+      <div class="note">選「所有人」是為了讓 LINE 送得進來。程式會檢查網址裡的密碼，也只回應你本人，別人拿到網址也用不了。</div>
+      <label class="done-toggle"><input type="checkbox" id="done-7"><span>這一步完成了</span></label>
+    </section>
+
+    <section class="card" id="s8" data-step="8">
+      <div class="step-head"><div class="step-no">8</div><div>
+        <h2>把網址貼到 LINE</h2>
+        <p class="why">告訴 LINE：有人傳訊息給機器人時，送到這裡。</p>
+      </div></div>
+      <ol>
+        <li>回到編輯器，函式選單選 <code>showWebhookUrl</code>，按 <b class="ui">執行</b>。</li>
+        <li>執行紀錄會印出一串網址，結尾是 <code>/exec?key=</code> 加一串亂碼。整串複製。</li>
+        <li>到 <a href="https://developers.line.biz/console/" target="_blank" rel="noopener">LINE Developers</a> → 你的頻道 → <b class="ui">Messaging API</b> 分頁。</li>
+        <li><b class="ui">Webhook URL</b> 點 Edit，貼上網址，按 Update。</li>
+        <li>把 <b class="ui">Use webhook</b> 打開。</li>
+        <li><b class="ui">Webhook redelivery</b> 保持關閉。</li>
+      </ol>
+      <div class="warn"><b>旁邊的 Verify 按了會顯示錯誤（302），這是正常的，不用理它。</b>Apps Script 的回應方式跟 LINE 預期的不同，但訊息實際上都收得到。</div>
+      <label class="done-toggle"><input type="checkbox" id="done-8"><span>這一步完成了</span></label>
+    </section>
+
+    <section class="card" id="s9" data-step="9">
+      <div class="step-head"><div class="step-no">9</div><div>
+        <h2>加好友、綁定自己</h2>
+        <p class="why">第一個傳訊息的人會成為主人，之後只有主人能用。</p>
+      </div></div>
+      <ol>
+        <li>Messaging API 分頁上方有 QR code，用手機 LINE 掃描、加好友。</li>
+        <li>傳一則訊息給它，例如「你好」。</li>
+        <li>收到「👋 綁定完成！」就好了。別人加好友傳訊息，只會收到「私人助理」的回覆。</li>
+      </ol>
+      <div class="warn"><b>一定要你自己傳第一則訊息。</b></div>
+      <p>試試看傳這些：</p>
+      <ul class="examples">
+        <li>幫我想三個週末可以帶小孩去的地方</li>
+        <li>（傳一張活動海報）→ 點「加到行事曆」</li>
+        <li>明天有什麼行程？</li>
+        <li>新對話（清掉前面的對話，重新開始）</li>
+      </ul>
+      <label class="done-toggle"><input type="checkbox" id="done-9"><span>這一步完成了</span></label>
+    </section>
+
+    <section class="card" id="help">
+      <div class="step-head"><div class="step-no">?</div><div>
+        <h2>出問題時</h2>
+        <p class="why">先在編輯器執行 <code>checkSettings</code>，執行紀錄會告訴你 LINE 金鑰、AI 金鑰、主人綁定是否正常。</p>
+      </div></div>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th>狀況</th><th>怎麼辦</th></tr></thead>
+          <tbody>
+            <tr><th>傳訊息完全沒反應</th><td>檢查 Webhook URL 是不是整串貼上、結尾是 <code>/exec?key=</code> 加一串亂碼；Use webhook 有沒有打開；部署時「誰可以存取」是不是「所有人」。</td></tr>
+            <tr><th>回「AI 金鑰不能用」</th><td>重新複製金鑰，更新指令碼屬性 <code>AI_API_KEY</code>。</td></tr>
+            <tr><th>回「餘額不足」</th><td>到 AI 公司網站的 Billing 頁儲值。</td></tr>
+            <tr><th>行程時間差幾小時</th><td>第 4 步的時區，設成跟 Google 行事曆一樣。</td></tr>
+            <tr><th>想換人當主人</th><td>執行 <code>resetOwner</code>，再用新的 LINE 帳號傳訊息。</td></tr>
+            <tr><th>想換 AI 公司</th><td>改指令碼屬性 <code>AI_PROVIDER</code> 和 <code>AI_API_KEY</code>，不用重新部署。</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="warn"><b>有新版程式時：</b>貼上新程式、存檔後，一定要到「部署 → 管理部署作業 → 編輯 → 版本選『新版本』→ 部署」。只存檔的話，LINE 用到的還是舊版。網址不會變，不用重貼到 LINE。</div>
+    </section>
+
+    <section class="card">
+      <h2>隱私</h2>
+      <ul>
+        <li>程式跑在你自己的 Google 帳號裡，對話與行程不會經過作者或任何第三方。</li>
+        <li>你傳的訊息與照片，會送到你選的 AI 公司處理，依各家的隱私條款處理。</li>
+        <li>對話記憶只存在 Apps Script 的快取，30 分鐘沒說話就自動消失。</li>
+      </ul>
+    </section>
+  </main>
+</div>
+
+<footer>程式碼公開在 <a href="https://github.com/goingli0324/line-ai-assistant" target="_blank" rel="noopener">GitHub</a>（MIT 授權，可以自由使用、修改、分享）。</footer>
+
+<script>
+(function () {
+  var KEY = 'line-ai-setup-done';
+  var TOTAL = 9;
+  var saved = {};
+  try { saved = JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) { saved = {}; }
+
+  function render() {
+    var count = 0;
+    for (var i = 1; i <= TOTAL; i++) {
+      var done = !!saved[i];
+      if (done) count++;
+      var card = document.getElementById('s' + i);
+      var box = document.getElementById('done-' + i);
+      var link = document.querySelector('nav.toc a[href="#s' + i + '"]');
+      if (card) card.classList.toggle('is-done', done);
+      if (box) box.checked = done;
+      if (link) link.classList.toggle('done', done);
+    }
+    document.getElementById('progress').textContent = '完成 ' + count + '／' + TOTAL + ' 步';
+  }
+
+  for (var i = 1; i <= TOTAL; i++) {
+    (function (n) {
+      var box = document.getElementById('done-' + n);
+      if (!box) return;
+      box.addEventListener('change', function () {
+        saved[n] = box.checked;
+        try { localStorage.setItem(KEY, JSON.stringify(saved)); } catch (e) {}
+        render();
+      });
+    })(i);
+  }
+
+  document.querySelectorAll('button.copy').forEach(function (button) {
+    button.addEventListener('click', function () {
+      var text = button.getAttribute('data-copy');
+      var done = function () { button.textContent = '已複製'; setTimeout(function () { button.textContent = '複製'; }, 1500); };
+      var fallback = function () {
+        var code = button.parentElement.querySelector('code');
+        var range = document.createRange();
+        range.selectNodeContents(code);
+        var sel = window.getSelection();
+        sel.removeAllRanges();
+        sel.addRange(range);
+        button.textContent = '已選取，請按複製';
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(done, fallback);
+      } else {
+        fallback();
+      }
+    });
+  });
+
+  render();
+})();
+</script>
+
+</body>
+</html>
