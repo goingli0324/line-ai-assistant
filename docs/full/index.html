@@ -1,0 +1,405 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="在自己的 Google Cloud 架好完整版 LINE AI 助理：上網查資料、語音、看圖、生圖、讀寫行事曆。">
+<title>LINE AI 助理完整版教學</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* 版面：單欄閱讀、字大；每一步是一張可以勾「完成」的卡片，桌機左側有步驟目錄。指令區塊可一鍵複製 */
+:root {
+  --bg: #F6F7F4;
+  --surface: #FFFFFF;
+  --ink: #1B221D;
+  --muted: #56615A;
+  --line: #D9DFD9;
+  --accent: #1F5C3A;
+  --accent-soft: #E3EFE6;
+  --warn-bg: #FFF4E2;
+  --warn-ink: #7A4A08;
+  --warn-edge: #E1A33C;
+  --code-bg: #EEF1EC;
+  --done: #2E7D4F;
+  --font-body: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #121714; --surface: #1A211D; --ink: #E6ECE7; --muted: #A3B0A7; --line: #2E3832;
+    --accent: #7FC99A; --accent-soft: #1F3328; --warn-bg: #2E2413; --warn-ink: #F2CD8B; --warn-edge: #B9832A;
+    --code-bg: #232C26; --done: #7FC99A; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #121714; --surface: #1A211D; --ink: #E6ECE7; --muted: #A3B0A7; --line: #2E3832;
+  --accent: #7FC99A; --accent-soft: #1F3328; --warn-bg: #2E2413; --warn-ink: #F2CD8B; --warn-edge: #B9832A;
+  --code-bg: #232C26; --done: #7FC99A; color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 18px;
+  line-height: 1.8;
+  padding-inline: 20px;
+  padding-block: 0 64px;
+}
+.wrap { max-width: 1080px; margin: 0 auto; display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 48px; }
+@media (max-width: 860px) { .wrap { grid-template-columns: minmax(0, 1fr); gap: 0; } nav.toc { display: none; } }
+
+header.hero { max-width: 1080px; margin: 0 auto; padding-block: 48px 32px; }
+.eyebrow { font-size: 15px; font-weight: 700; letter-spacing: 0.08em; color: var(--accent); }
+h1 { font-size: clamp(32px, 6vw, 46px); line-height: 1.25; font-weight: 900; margin: 8px 0 16px; text-wrap: balance; }
+.lead { font-size: 20px; color: var(--muted); max-width: 40em; margin: 0; }
+.facts { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 24px; padding: 0; list-style: none; }
+.facts li { background: var(--accent-soft); color: var(--ink); border-radius: 999px; padding: 6px 16px; font-size: 16px; font-weight: 500; }
+
+nav.toc { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 24px); align-self: start; font-size: 16px; }
+nav.toc ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+nav.toc a { display: flex; gap: 10px; align-items: baseline; color: var(--muted); text-decoration: none; padding: 6px 10px; border-radius: 8px; }
+nav.toc a:hover { background: var(--accent-soft); color: var(--ink); }
+nav.toc a .n { font-family: var(--font-mono); font-size: 14px; color: var(--accent); min-width: 1.5em; }
+nav.toc a.done .n::after { content: " ✓"; color: var(--done); }
+nav.toc .progress { margin: 0 10px 12px; font-size: 14px; color: var(--muted); }
+
+main { display: grid; gap: 28px; min-width: 0; }
+section.card { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 28px 28px 24px; min-width: 0; }
+@media (max-width: 520px) { section.card { padding: 22px 18px 18px; } body { font-size: 17px; } }
+section.card.is-done { border-color: var(--done); }
+.step-head { display: flex; align-items: flex-start; gap: 16px; }
+.step-no { flex: none; width: 44px; height: 44px; border-radius: 50%; background: var(--accent); color: var(--surface); font-weight: 900; font-size: 20px; display: grid; place-items: center; font-family: var(--font-mono); }
+section.card.is-done .step-no { background: var(--done); }
+h2 { font-size: 26px; line-height: 1.35; margin: 2px 0 0; text-wrap: balance; }
+.why { color: var(--muted); margin: 4px 0 0; font-size: 17px; }
+.card ol, .card ul { padding-left: 1.4em; margin: 16px 0 0; display: grid; gap: 8px; }
+.card p { margin: 14px 0 0; }
+.card li::marker { color: var(--accent); font-weight: 700; }
+a { color: var(--accent); text-underline-offset: 3px; }
+b.ui { font-weight: 700; }
+kbd, code { font-family: var(--font-mono); font-size: 0.86em; background: var(--code-bg); border-radius: 6px; padding: 1px 7px; overflow-wrap: anywhere; }
+
+.note, .warn { border-radius: 10px; padding: 14px 18px; margin-top: 18px; font-size: 17px; }
+.note { background: var(--accent-soft); }
+.warn { background: var(--warn-bg); color: var(--warn-ink); border-left: 5px solid var(--warn-edge); }
+.warn b, .note b { font-weight: 700; }
+
+.table-scroll { overflow-x: auto; margin-top: 18px; }
+table { border-collapse: collapse; width: 100%; font-size: 17px; min-width: 520px; }
+th, td { text-align: left; padding: 12px 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-size: 15px; color: var(--muted); font-weight: 700; }
+tbody th { color: var(--ink); font-size: 16px; white-space: nowrap; }
+td.pick { background: var(--accent-soft); }
+
+.props { display: grid; gap: 10px; margin-top: 18px; }
+.prop { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 12px; align-items: center; border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; }
+.prop code { font-size: 16px; justify-self: start; }
+.prop .val { grid-column: 1 / -1; color: var(--muted); font-size: 16px; }
+button.copy { font: inherit; font-size: 15px; font-weight: 700; color: var(--accent); background: transparent; border: 1.5px solid var(--accent); border-radius: 8px; padding: 4px 12px; cursor: pointer; }
+button.copy:focus-visible, .done-toggle input:focus-visible + span { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+.done-toggle { display: inline-flex; align-items: center; gap: 10px; margin-top: 20px; font-weight: 700; color: var(--muted); cursor: pointer; font-size: 17px; }
+.done-toggle input { width: 22px; height: 22px; accent-color: var(--done); }
+section.card.is-done .done-toggle { color: var(--done); }
+
+.examples { display: grid; gap: 10px; margin-top: 16px; padding: 0; list-style: none; }
+.examples li { background: var(--code-bg); border-radius: 12px 12px 12px 4px; padding: 10px 16px; max-width: 30em; }
+
+pre.cmd { position: relative; background: var(--code-bg); border-radius: 10px; padding: 14px 16px; margin: 14px 0 0; overflow-x: auto; font-family: var(--font-mono); font-size: 15px; line-height: 1.6; }
+.cmd-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px; align-items: start; margin-top: 14px; }
+.cmd-row pre.cmd { margin: 0; }
+footer { max-width: 1080px; margin: 40px auto 0; color: var(--muted); font-size: 16px; }
+@media (prefers-reduced-motion: no-preference) { section.card { transition: border-color .2s; } }
+</style>
+<style>html,body{margin:0}</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="eyebrow">完整版・Google Cloud Run</div>
+  <h1>在 LINE 裡用你自己的 AI（完整版）</h1>
+  <p class="lead">比簡易版多了上網查資料、語音訊息、畫類似風格的圖，回覆也比較快。程式跑在你自己的 Google Cloud 上，背後是你選的 AI：ChatGPT、Gemini 或 Claude。</p>
+  <ul class="facts">
+    <li>約 60 分鐘</li>
+    <li>要綁信用卡（Google Cloud）</li>
+    <li>個人用量通常在免費額度內</li>
+    <li>要用電腦操作</li>
+  </ul>
+  <div class="warn" style="max-width:40em"><b>完整版的程式碼還沒公開。</b>這份教學先放上來給大家參考，但第 3 步的程式碼連結和第 5 步的下載目前還打不開。想現在就用，可以先架<a href="../">簡易版</a>，免費、不用綁卡。</div>
+</header>
+
+<div class="wrap">
+  <nav class="toc" aria-label="步驟">
+    <p class="progress" id="progress">完成 0／8 步</p>
+    <ol>
+      <li><a href="#s1"><span class="n">1</span>LINE 官方帳號</a></li>
+      <li><a href="#s2"><span class="n">2</span>AI 金鑰</a></li>
+      <li><a href="#s3"><span class="n">3</span>行事曆連接</a></li>
+      <li><a href="#s4"><span class="n">4</span>Google Cloud 專案</a></li>
+      <li><a href="#s5"><span class="n">5</span>下載程式、填設定</a></li>
+      <li><a href="#s6"><span class="n">6</span>一鍵部署</a></li>
+      <li><a href="#s7"><span class="n">7</span>貼網址到 LINE</a></li>
+      <li><a href="#s8"><span class="n">8</span>綁定自己</a></li>
+      <li><a href="#help"><span class="n">?</span>出問題時</a></li>
+    </ol>
+  </nav>
+
+  <main>
+    <section class="card" id="s1" data-step="1">
+      <div class="step-head"><div class="step-no">1</div><div>
+        <h2>建立 LINE 官方帳號，拿到兩把金鑰</h2>
+        <p class="why">這個帳號就是你的機器人。完整版會驗證訊息真的是 LINE 送來的，所以要兩把：Channel secret 和 Channel access token。</p>
+      </div></div>
+      <ol>
+        <li>用電腦打開 <a href="https://developers.line.biz/console/" target="_blank" rel="noopener">LINE Developers</a>，用你的 LINE 帳號登入。</li>
+        <li>第一次進來會請你建立一個 <b class="ui">Provider</b>，名稱隨意，例如「我的助理」。</li>
+        <li>在 Provider 裡點 <b class="ui">Create a new channel</b>，選 <b class="ui">Messaging API</b>。</li>
+        <li>畫面會說現在不能直接在這裡建立。點綠色按鈕 <b class="ui">Create a LINE Official Account</b>，照表單填寫，不用申請認證。</li>
+        <li>完成後點 <b class="ui">前往 LINE Official Account Manager</b>，同意條款。</li>
+        <li>在 Official Account Manager 點 <b class="ui">設定 → Messaging API → 啟用 Messaging API</b>，選剛剛建立的 Provider，其他欄位留空，按確定。</li>
+        <li>回到 <a href="https://developers.line.biz/console/" target="_blank" rel="noopener">LINE Developers</a>，點進剛出現的頻道：
+          <ul>
+            <li><b class="ui">Basic settings</b> 分頁 → <b class="ui">Channel secret</b>，複製起來。</li>
+            <li><b class="ui">Messaging API</b> 分頁 → 最下面 <b class="ui">Channel access token</b> → 按 <b class="ui">Issue</b>，複製起來。</li>
+          </ul>
+        </li>
+      </ol>
+      <div class="warn"><b>這兩串等於機器人的鑰匙。</b>不要貼給任何人，也不要貼到群組。</div>
+      <p>最後關掉 LINE 內建的自動回覆：Official Account Manager → <b class="ui">設定 → 回應設定</b>，把「加入好友的歡迎訊息」和「自動回應訊息」都關掉。</p>
+      <label class="done-toggle"><input type="checkbox" id="done-1"><span>這一步完成了</span></label>
+    </section>
+
+    <section class="card" id="s2" data-step="2">
+      <div class="step-head"><div class="step-no">2</div><div>
+        <h2>拿一把 AI 金鑰（三選一）</h2>
+        <p class="why">不知道選哪個，就先選 Gemini：免費就能開始用，而且語音、生圖都用同一把。</p>
+      </div></div>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th></th><th>Gemini（Google）</th><th>ChatGPT（OpenAI）</th><th>Claude（Anthropic）</th></tr></thead>
+          <tbody>
+            <tr><th>費用</th><td class="pick">有免費額度</td><td>要先儲值，最少 5 美元</td><td>要先儲值</td></tr>
+            <tr><th>申請網址</th><td class="pick"><a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">Google AI Studio</a></td><td><a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener">OpenAI Platform</a></td><td><a href="https://platform.claude.com/settings/keys" target="_blank" rel="noopener">Claude Console</a></td></tr>
+            <tr><th>語音訊息</th><td class="pick">可以</td><td>可以</td><td>要另外加一把 Gemini 金鑰</td></tr>
+            <tr><th>畫類似的圖</th><td class="pick">要為金鑰開啟帳單</td><td>要另外加一把 Gemini 金鑰（開帳單）</td><td>要另外加一把 Gemini 金鑰（開帳單）</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <ol>
+        <li>打開申請網址，登入，建立一把 API key，複製起來先放著。</li>
+        <li>選 ChatGPT 或 Claude 的話，要先到網站的 <b class="ui">Billing</b>（帳單）頁儲值，金鑰才能用。</li>
+      </ol>
+      <div class="warn"><b>Gemini 免費方案的對話內容，Google 可能拿去改進他們的產品。</b>會傳工作文件、學生或客戶資料的話，改用付費方案，或選另外兩家。</div>
+      <div class="note">生圖用的 Gemini 模型沒有免費額度，要在 Google AI Studio 為這把金鑰開啟帳單才能用，每張圖大約 2 元台幣。不需要生圖的話可以不開，其他功能照常。</div>
+      <label class="done-toggle"><input type="checkbox" id="done-2"><span>這一步完成了</span></label>
+    </section>
+
+    <section class="card" id="s3" data-step="3">
+      <div class="step-head"><div class="step-no">3</div><div>
+        <h2>建立行事曆連接（Apps Script）</h2>
+        <p class="why">這支小程式跑在你的 Google 帳號裡，讓雲端的機器人可以讀寫你的行事曆，不用把 Google 密碼交給任何人。</p>
+      </div></div>
+      <ol>
+        <li>打開 <a href="https://script.google.com/home" target="_blank" rel="noopener">Google Apps Script</a>，用行事曆所在的 Gmail 登入，點 <b class="ui">新專案</b>，改名為「LINE AI 行事曆」。</li>
+        <li>打開 <a href="https://raw.githubusercontent.com/goingli0324/line-ai-assistant-full/main/gas/CalendarBridge.gs" target="_blank" rel="noopener">程式碼 CalendarBridge.gs</a>，全選後複製，貼進編輯器（原本的幾行先刪掉），存檔。</li>
+        <li>左邊齒輪 <b class="ui">專案設定</b> → <b class="ui">時區</b> 選「(GMT+08:00) 台北」。</li>
+        <li>回到編輯器，函式選單選 <code>setup</code> → <b class="ui">執行</b>。跳出授權時選你的帳號；看到「Google 尚未驗證這個應用程式」就點 <b class="ui">進階 → 前往（不安全）</b> → <b class="ui">允許</b>。這是因為程式是你自己建的，屬於正常現象。</li>
+        <li>右上角 <b class="ui">部署 → 新增部署作業</b> → 齒輪選 <b class="ui">網頁應用程式</b> → 執行身分 <b class="ui">我</b>、誰可以存取 <b class="ui">所有人</b> → <b class="ui">部署</b>。</li>
+        <li>函式選單選 <code>showSettings</code> → <b class="ui">執行</b>。執行紀錄會印出 <code>CALENDAR_BRIDGE_URL=…</code> 和 <code>CALENDAR_BRIDGE_SECRET=…</code> 兩行，複製起來，第 5 步要用。</li>
+      </ol>
+      <div class="note">選「所有人」是為了讓雲端的機器人連得進來。每個請求都要帶密碼，別人拿到網址也讀不到你的行事曆。</div>
+      <label class="done-toggle"><input type="checkbox" id="done-3"><span>這一步完成了</span></label>
+    </section>
+
+    <section class="card" id="s4" data-step="4">
+      <div class="step-head"><div class="step-no">4</div><div>
+        <h2>建立 Google Cloud 專案、連結帳單</h2>
+        <p class="why">機器人本體跑在這裡。Google 規定要綁卡才能用，但個人用量通常在免費額度內。</p>
+      </div></div>
+      <ol>
+        <li>打開 <a href="https://console.cloud.google.com/projectcreate" target="_blank" rel="noopener">Google Cloud 建立專案</a>，專案名稱填「line-ai」，按 <b class="ui">建立</b>。</li>
+        <li>建好後在首頁的 <b class="ui">專案資訊</b> 找到 <b class="ui">專案 ID</b>（例如 <code>line-ai-123456</code>），複製起來。</li>
+        <li>打開 <a href="https://console.cloud.google.com/billing/linkedaccount" target="_blank" rel="noopener">帳單</a>，把這個專案連結到帳單帳戶。第一次用要先建立帳單帳戶、填信用卡。</li>
+        <li>建議設一個預算提醒：<a href="https://console.cloud.google.com/billing/budgets" target="_blank" rel="noopener">帳單 → 預算與快訊</a> → 建立預算，金額填每月 100 元。超過時 Google 會寄信通知你。</li>
+      </ol>
+      <label class="done-toggle"><input type="checkbox" id="done-4"><span>這一步完成了</span></label>
+    </section>
+
+    <section class="card" id="s5" data-step="5">
+      <div class="step-head"><div class="step-no">5</div><div>
+        <h2>在 Cloud Shell 下載程式、填設定</h2>
+        <p class="why">Cloud Shell 是 Google 在瀏覽器裡提供的終端機，不用在電腦上安裝任何東西。</p>
+      </div></div>
+      <ol>
+        <li>在 <a href="https://console.cloud.google.com/" target="_blank" rel="noopener">Google Cloud Console</a> 右上角點 <b class="ui">啟用 Cloud Shell</b>（<code>&gt;_</code> 圖示），下方會開出一個終端機。</li>
+        <li>複製下面這行，貼到終端機，按 Enter：</li>
+      </ol>
+      <div class="cmd-row"><pre class="cmd"><code>git clone https://github.com/goingli0324/line-ai-assistant-full.git &amp;&amp; cd line-ai-assistant-full &amp;&amp; cp line-ai.env.example line-ai.env &amp;&amp; cloudshell edit line-ai.env</code></pre><button class="copy" type="button" data-copy="git clone https://github.com/goingli0324/line-ai-assistant-full.git &amp;&amp; cd line-ai-assistant-full &amp;&amp; cp line-ai.env.example line-ai.env &amp;&amp; cloudshell edit line-ai.env">複製</button></div>
+      <ol start="3">
+        <li>上方會開出設定檔 <code>line-ai.env</code>。在每個等號後面填上前幾步複製的值，等號前後不要有空白：
+          <div class="props">
+            <div class="prop"><code>LINE_CHANNEL_SECRET</code><span></span><span class="val">第 1 步的 Channel secret</span></div>
+            <div class="prop"><code>LINE_CHANNEL_ACCESS_TOKEN</code><span></span><span class="val">第 1 步的 Channel access token</span></div>
+            <div class="prop"><code>AI_PROVIDER</code><span></span><span class="val"><code>gemini</code>、<code>openai</code> 或 <code>claude</code>（小寫）</span></div>
+            <div class="prop"><code>AI_API_KEY</code><span></span><span class="val">第 2 步的 AI 金鑰</span></div>
+            <div class="prop"><code>CALENDAR_BRIDGE_URL</code><span></span><span class="val">第 3 步印出的網址</span></div>
+            <div class="prop"><code>CALENDAR_BRIDGE_SECRET</code><span></span><span class="val">第 3 步印出的密碼</span></div>
+          </div>
+        </li>
+        <li>選 Claude 又想用語音或生圖的話，另外填 <code>GEMINI_API_KEY</code>。</li>
+        <li>存檔（<kbd>Ctrl</kbd>+<kbd>S</kbd> 或 <kbd>⌘</kbd>+<kbd>S</kbd>）。</li>
+      </ol>
+      <div class="note">這個設定檔只會存在你的 Cloud Shell，部署時會放進 Google 的 Secret Manager（專門保管密碼的地方），不會跟著程式上傳。</div>
+      <label class="done-toggle"><input type="checkbox" id="done-5"><span>這一步完成了</span></label>
+    </section>
+
+    <section class="card" id="s6" data-step="6">
+      <div class="step-head"><div class="step-no">6</div><div>
+        <h2>一鍵部署</h2>
+        <p class="why">這個指令會幫你開好需要的服務、存好金鑰、部署機器人、建立 LINE 下方的選單。第一次大約 5–8 分鐘。</p>
+      </div></div>
+      <p>回到下方的終端機，把 <code>你的專案ID</code> 換成第 4 步複製的專案 ID，按 Enter：</p>
+      <div class="cmd-row"><pre class="cmd"><code>bash scripts/deploy.sh 你的專案ID</code></pre><button class="copy" type="button" data-copy="bash scripts/deploy.sh ">複製</button></div>
+      <ol>
+        <li>第一次執行時可能會跳出「授權 Cloud Shell」，按 <b class="ui">授權</b>。</li>
+        <li>畫面會依序顯示 1/7 到 7/7。看到 <b class="ui">7/7 完成</b> 後，最下面會印出一個以 <code>/webhook</code> 結尾的網址，複製起來。</li>
+      </ol>
+      <div class="warn"><b>出現紅色的 ✗ 時</b>，照它說的修正後，再執行同一個指令就好。已經做完的步驟會自動略過。</div>
+      <label class="done-toggle"><input type="checkbox" id="done-6"><span>這一步完成了</span></label>
+    </section>
+
+    <section class="card" id="s7" data-step="7">
+      <div class="step-head"><div class="step-no">7</div><div>
+        <h2>把網址貼到 LINE</h2>
+        <p class="why">告訴 LINE：有人傳訊息給機器人時，送到這裡。</p>
+      </div></div>
+      <ol>
+        <li>到 <a href="https://developers.line.biz/console/" target="_blank" rel="noopener">LINE Developers</a> → 你的頻道 → <b class="ui">Messaging API</b> 分頁。</li>
+        <li><b class="ui">Webhook URL</b> 點 Edit，貼上第 6 步的網址，按 Update。</li>
+        <li>把 <b class="ui">Use webhook</b> 打開。</li>
+        <li>按 <b class="ui">Verify</b>，應該顯示 <b class="ui">Success</b>。</li>
+      </ol>
+      <label class="done-toggle"><input type="checkbox" id="done-7"><span>這一步完成了</span></label>
+    </section>
+
+    <section class="card" id="s8" data-step="8">
+      <div class="step-head"><div class="step-no">8</div><div>
+        <h2>加好友、綁定自己</h2>
+        <p class="why">第一個傳訊息的人會成為主人，之後只有主人能用。</p>
+      </div></div>
+      <ol>
+        <li>Messaging API 分頁上方有 QR code，用手機 LINE 掃描、加好友。</li>
+        <li>傳一則訊息給它，例如「你好」。它回話就代表完成了。</li>
+      </ol>
+      <div class="warn"><b>一定要你自己傳第一則訊息。</b>別人之後加好友傳訊息，只會收到「私人助理」的回覆。</div>
+      <p>試試看：</p>
+      <ul class="examples">
+        <li>今天台北會下雨嗎？（上網查）</li>
+        <li>（按住麥克風說）明天早上十點要去看牙醫</li>
+        <li>（傳一張活動海報）→ 點「加到行事曆」</li>
+        <li>（傳一張照片）→ 點「畫類似風格的圖」</li>
+      </ul>
+      <label class="done-toggle"><input type="checkbox" id="done-8"><span>這一步完成了</span></label>
+    </section>
+
+    <section class="card" id="help">
+      <div class="step-head"><div class="step-no">?</div><div>
+        <h2>出問題時</h2>
+        <p class="why">機器人會把大部分錯誤翻成白話回給你。下面是常見狀況。</p>
+      </div></div>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th>狀況</th><th>怎麼辦</th></tr></thead>
+          <tbody>
+            <tr><th>Verify 顯示失敗</th><td>確認網址是第 6 步印出的、以 <code>/webhook</code> 結尾；<code>line-ai.env</code> 裡的 <code>LINE_CHANNEL_SECRET</code> 有沒有貼對。改好後再執行一次部署指令。</td></tr>
+            <tr><th>回「AI 金鑰不能用」</th><td>改 <code>line-ai.env</code> 的 <code>AI_API_KEY</code>，再執行一次部署指令。</td></tr>
+            <tr><th>回「餘額不足」</th><td>到 AI 公司網站的 Billing 頁儲值。</td></tr>
+            <tr><th>回「行事曆還沒設定好」或查不到行程</th><td>重做第 3 步最後的 <code>showSettings</code>，確認兩個值都貼進 <code>line-ai.env</code>，再部署一次。</td></tr>
+            <tr><th>生圖失敗、說沒有免費額度</th><td>到 Google AI Studio 為 Gemini 金鑰開啟帳單。</td></tr>
+            <tr><th>想換 AI 公司</th><td>改 <code>AI_PROVIDER</code> 和 <code>AI_API_KEY</code>，再部署一次。</td></tr>
+            <tr><th>想換人當主人</th><td>到 <a href="https://console.cloud.google.com/firestore/databases" target="_blank" rel="noopener">Firestore</a> 刪掉 <code>config/owner</code> 這筆，再用新的 LINE 帳號傳訊息。</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p><b>更新到新版：</b>打開 Cloud Shell，執行下面這行（專案 ID 一樣要換）：</p>
+      <div class="cmd-row"><pre class="cmd"><code>cd line-ai-assistant-full &amp;&amp; git pull &amp;&amp; bash scripts/deploy.sh 你的專案ID</code></pre><button class="copy" type="button" data-copy="cd line-ai-assistant-full &amp;&amp; git pull &amp;&amp; bash scripts/deploy.sh ">複製</button></div>
+      <p><b>不想用了：</b>到 Google Cloud Console 刪除這個專案，就不會再有任何費用。</p>
+    </section>
+
+    <section class="card">
+      <h2>隱私</h2>
+      <ul>
+        <li>機器人跑在你自己的 Google Cloud 專案、行事曆連接跑在你自己的 Google 帳號，對話與行程不會經過作者或任何第三方。</li>
+        <li>你傳的訊息、照片與語音，會送到你選的 AI 公司處理，依各家的隱私條款處理。</li>
+        <li>對話記憶只存在機器人的記憶體，30 分鐘沒說話就清掉；Firestore 只記誰是主人。</li>
+      </ul>
+    </section>
+  </main>
+</div>
+
+<footer>程式碼在 <a href="https://github.com/goingli0324/line-ai-assistant-full" target="_blank" rel="noopener">GitHub</a>（MIT 授權）。只想要基本功能、不想綁卡的話，可以用<a href="../">簡易版</a>。</footer>
+
+<script>
+(function () {
+  var KEY = 'line-ai-setup-done';
+  var TOTAL = 8;
+  var saved = {};
+  try { saved = JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) { saved = {}; }
+
+  function render() {
+    var count = 0;
+    for (var i = 1; i <= TOTAL; i++) {
+      var done = !!saved[i];
+      if (done) count++;
+      var card = document.getElementById('s' + i);
+      var box = document.getElementById('done-' + i);
+      var link = document.querySelector('nav.toc a[href="#s' + i + '"]');
+      if (card) card.classList.toggle('is-done', done);
+      if (box) box.checked = done;
+      if (link) link.classList.toggle('done', done);
+    }
+    document.getElementById('progress').textContent = '完成 ' + count + '／' + TOTAL + ' 步';
+  }
+
+  for (var i = 1; i <= TOTAL; i++) {
+    (function (n) {
+      var box = document.getElementById('done-' + n);
+      if (!box) return;
+      box.addEventListener('change', function () {
+        saved[n] = box.checked;
+        try { localStorage.setItem(KEY, JSON.stringify(saved)); } catch (e) {}
+        render();
+      });
+    })(i);
+  }
+
+  document.querySelectorAll('button.copy').forEach(function (button) {
+    button.addEventListener('click', function () {
+      var text = button.getAttribute('data-copy');
+      var done = function () { button.textContent = '已複製'; setTimeout(function () { button.textContent = '複製'; }, 1500); };
+      var fallback = function () {
+        var code = button.parentElement.querySelector('code');
+        var range = document.createRange();
+        range.selectNodeContents(code);
+        var sel = window.getSelection();
+        sel.removeAllRanges();
+        sel.addRange(range);
+        button.textContent = '已選取，請按複製';
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(done, fallback);
+      } else {
+        fallback();
+      }
+    });
+  });
+
+  render();
+})();
+</script>
+
+</body>
+</html>
